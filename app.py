@@ -10,7 +10,7 @@ print(ratings.head())
 movie_data = pd.merge(ratings, movies, on='movieId')
 print(movie_data.isnull().sum())
 movie_data.dropna(inplace=True)
-movie_data['rating'] = movie_data.movie_data.groupby('title')['rating'].mean()
+movie_data['rating'] = movie_data.groupby('title')['rating'].mean()
 import matplotlib.pyplot as plt
 import seaborn as sns
 
