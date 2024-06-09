@@ -11,7 +11,7 @@ movie_data = pd.merge(ratings, movies, on='movieId')
 print(movie_data.isnull().sum())
 movie_data.dropna(inplace=True)
 movie_data['rating'] = movie_data['rating'].astype(float)
-import matplotlib.pyplot as plt
+import matplotlib as plt
 import seaborn as sns
 
 plt.figure(figsize=(10,6))
