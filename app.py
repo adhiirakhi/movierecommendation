@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Load datasets
 movies = pd.read_csv('movies.csv')
@@ -28,21 +27,27 @@ def recommend_movies(user_id, num_recommendations=5):
     return recommendations
 
 # Content-based recommendation system
-tfidf = TfidfVectorizer(stop_words='english')
-tfidf_matrix = tfidf.fit_transform(movies['genres'])
-movie_similarity = cosine_similarity(tfidf_matrix, tfidf_matrix)
+def compute_genre_similarity(genres1, genres2):
+    set1 = set(genres1.split('|'))
+    set2 = set(genres2.split('|'))
+    return len(set1 & set2) / len(set1 | set2)
 
 def recommend_similar_movies(movie_title, num_recommendations=5):
     # Ensure the movie exists in the DataFrame
-    if movie_title not in movies['title'].values:
+    movie_title = movie_title.strip().lower()
+    movie_titles = movies['title'].str.lower()
+    if movie_title not in movie_titles.values:
         st.write("Movie not found. Please check the spelling or try another movie.")
         return []
     
-    movie_idx = movies[movies['title'] == movie_title].index[0]
-    similarity_scores = list(enumerate(movie_similarity[movie_idx]))
-    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-    similar_movies = [movies['title'][i[0]] for i in similarity_scores[1:num_recommendations+1]]
-    return similar_movies
+    movie_idx = movie_titles[movie_titles == movie_title].index[0]
+    target_genres = movies.at[movie_idx, 'genres']
+    
+    # Compute similarity scores based on genres
+    movies['similarity'] = movies['genres'].apply(lambda x: compute_genre_similarity(target_genres, x))
+    similar_movies = movies.sort_values(by=['similarity', 'movieId'], ascending=[False, True])['title'].head(num_recommendations + 1)
+    
+    return similar_movies.iloc[1:].tolist()  # Exclude the input movie itself
 
 # Streamlit app
 st.title('Movie Recommendation System')
@@ -54,3 +59,10 @@ if movie_name:
         st.write('Recommendations:')
         for rec in recommendations:
             st.write(rec)
+
+genre_filter = st.selectbox('Select a genre:', sorted(set('|'.join(movies['genres']).split('|'))))
+if genre_filter:
+    filtered_movies = movies[movies['genres'].str.contains(genre_filter)]
+    st.write(f'Movies with genre {genre_filter}:')
+    for movie in filtered_movies['title'].head(10):  # Display top 10 movies for the selected genre
+        st.write(movie)
