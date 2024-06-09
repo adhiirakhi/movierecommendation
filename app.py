@@ -33,15 +33,12 @@ tfidf_matrix = tfidf.fit_transform(movies['genres'])
 movie_similarity = cosine_similarity(tfidf_matrix, tfidf_matrix)
 
 def recommend_similar_movies(movie_title, num_recommendations=5):
-    # Clean the movie title
-    movie_title = movie_title.strip().lower()
-    
     # Ensure the movie exists in the DataFrame
-    movie_titles = movies['title'].str.lower()
-    if movie_title not in movie_titles.values:
+    if movie_title not in movies['title'].values:
+        st.write("Movie not found. Please check the spelling or try another movie.")
         return []
-
-    movie_idx = movie_titles[movie_titles == movie_title].index[0]
+    
+    movie_idx = movies[movies['title'] == movie_title].index[0]
     similarity_scores = list(enumerate(movie_similarity[movie_idx]))
     similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
     similar_movies = [movies['title'][i[0]] for i in similarity_scores[1:num_recommendations+1]]
@@ -57,5 +54,3 @@ if movie_name:
         st.write('Recommendations:')
         for rec in recommendations:
             st.write(rec)
-    else:
-        st.write("Movie not found. Please check the spelling or try another movie.")
