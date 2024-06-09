@@ -42,11 +42,16 @@ tfidf = TfidfVectorizer(stop_words='english')
 tfidf_matrix = tfidf.fit_transform(movies['genres'])
 movie_similarity = cosine_similarity(tfidf_matrix, tfidf_matrix)
 def recommend_similar_movies(movie_title, num_recommendations=5):
-    movie_idx = movies[movies['title'] == movie_title].index[0]
-    similarity_scores = list(enumerate(movie_similarity[movie_idx]))
-    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-    similar_movies = [movies['title'][i[0]] for i in similarity_scores[1:num_recommendations+1]]
-    return similar_movies
+    movie_df = movies[movies['title'] == movie_title]
+    if not movie_df.empty:
+        movie_idx = movie_df.index[0]
+        similarity_scores = list(enumerate(movie_similarity[movie_idx]))
+        similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+        similar_movies = [movies['title'][i[0]] for i in similarity_scores[1:num_recommendations+1]]
+        return similar_movies
+    else:
+        return f"Movie title '{movie_title}' not found in the dataset."
+
 
 print(recommend_similar_movies('Toy Story (1995)', 5))
 from sklearn.model_selection import train_test_split
