@@ -34,9 +34,7 @@ def recommend_movies(user_id, num_recommendations=5):
     # Movies watched by similar users
     recommendations = user_movie_matrix.loc[similar_users].mean().sort_values(ascending=False).head(num_recommendations)
     return recommendations
-    # Rest of your code...
-    return recommendations
-
+   
 print(recommend_movies(1, 5))
 from sklearn.feature_extraction.text import TfidfVectorizer
 
