@@ -10,7 +10,7 @@ print(ratings.head())
 movie_data = pd.merge(ratings, movies, on='movieId')
 print(movie_data.isnull().sum())
 movie_data.dropna(inplace=True)
-movie_data['rating'] = movie_data.groupby('title').size().sort_values(ascending=False).head(10)
+movie_data['rating'] = movie_data.movie_data.groupby('title')['rating'].mean()
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -20,7 +20,7 @@ plt.title('Distribution of Movie Ratings')
 plt.xlabel('Rating')
 plt.ylabel('Count')
 plt.show()
-top_movies = movie_data.sort_values(ascending=False).head(10)
+top_movies = movie_data.groupby('title').size().sort_values(ascending=False).head(10)
 print(top_movies)
 user_movie_matrix = movie_data.pivot_table(index='userId', columns='title', values='rating')
 from sklearn.metrics.pairwise import cosine_similarity
