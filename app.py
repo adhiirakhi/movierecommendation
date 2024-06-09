@@ -32,9 +32,8 @@ def recommend_movies(user_id, num_recommendations=5):
     similar_users = user_movie_matrix.index[similarity_scores.argsort()[-num_recommendations-1:-1]]
     
     # Movies watched by similar users
-   def recommendations(title, cosine_sim=cosine_sim):
-    if title not in indices:
-        raise KeyError(f"Title '{title}' is not in indices.")
+   recommendations = user_movie_matrix.loc[similar_users].mean().sort_values(ascending=False).head(num_recommendations)
+    return recommendations
     # Rest of your code...
     return recommendations
 
